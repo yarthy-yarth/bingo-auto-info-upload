@@ -1,4 +1,4 @@
-package com.example;
+package com.bingo_auto_info_upload;
 
 import com.google.inject.Provides;
 import javax.inject.Inject;
@@ -14,15 +14,15 @@ import net.runelite.client.plugins.PluginDescriptor;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Example"
+	name = "Bingo Auto Info Upload"
 )
-public class ExamplePlugin extends Plugin
+public class BingoAutoInfoUploadPlugin extends Plugin
 {
 	@Inject
 	private Client client;
 
 	@Inject
-	private ExampleConfig config;
+	private BingoAutoInfoUploadConfig config;
 
 	@Override
 	protected void startUp() throws Exception
@@ -46,8 +46,8 @@ public class ExamplePlugin extends Plugin
 	}
 
 	@Provides
-	ExampleConfig provideConfig(ConfigManager configManager)
+	BingoAutoInfoUploadConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(ExampleConfig.class);
+		return configManager.getConfig(BingoAutoInfoUploadConfig.class);
 	}
 }
