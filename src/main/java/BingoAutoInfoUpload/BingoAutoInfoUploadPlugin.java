@@ -1,5 +1,6 @@
 package BingoAutoInfoUpload;
 
+import Notifiers.LootNotifier;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,9 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 
 	@Inject
 	private BingoAutoInfoUploadConfig config;
+
+	@Inject
+	private LootNotifier lootNotifier;
 
 	@Override
 	protected void startUp() throws Exception
@@ -56,24 +60,8 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onPlayerLootReceived(PlayerLootReceived event)
-	{
-		log.debug("got here");
-		for (ItemStack item : event.getItems())
-		{
-			log.debug("Test = " + String.valueOf(item.getId()));
-			log.debug("Test = " + String.valueOf(item.getQuantity()));
-		}
-	}
-
-	@Subscribe
 	public void onNpcLootReceived(NpcLootReceived event)
 	{
-		NPC npc = event.getNpc();
-		int id = npc.getId();
-		for (ItemStack item : event.getItems())
-		{
-			log.debug("NPC loot item id = {} quantity = {} npcId = {}", item.getId(), item.getQuantity(), id);
-		}
+		lootNotifier.onNpcLootReceived(event);
 	}
 }
