@@ -16,6 +16,7 @@ import net.runelite.client.events.PlayerLootReceived;
 import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.loottracker.LootReceived;
 
 @Slf4j
 @PluginDescriptor(
@@ -63,5 +64,11 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	public void onNpcLootReceived(NpcLootReceived event)
 	{
 		lootNotifier.onNpcLootReceived(event);
+	}
+
+	@Subscribe
+	public void onLootReceived(LootReceived event)
+	{
+		lootNotifier.onLootReceived(event);
 	}
 }

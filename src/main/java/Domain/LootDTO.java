@@ -7,14 +7,16 @@ public class LootDTO {
     public int itemPrice;
     public String itemName;
     public String sourceName;
+    public String playerName;
 
-    public LootDTO(int itemId, int quantity, String itemName, int itemPrice, String sourceName)
+    public LootDTO(int itemId, int quantity, String itemName, int itemPrice, String sourceName, String playerName)
     {
         this.quantity = quantity;
         this.itemId = itemId;
         this.sourceName = sourceName;
         this.itemName = itemName;
         this.itemPrice = itemPrice;
+        this.playerName = playerName;
     }
 
     @Override
@@ -26,6 +28,7 @@ public class LootDTO {
                 ", itemPrice=" + itemPrice +
                 ", itemName='" + itemName + '\'' +
                 ", sourceName='" + sourceName + '\'' +
+                ", playerName='" + playerName + '\'' +
                 '}';
     }
 }

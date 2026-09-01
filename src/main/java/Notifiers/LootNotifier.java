@@ -1,45 +1,78 @@
 package Notifiers;
 
+import BingoAutoInfoUpload.BingoAutoInfoUploadConfig;
 import Domain.LootDTO;
 import lombok.extern.slf4j.Slf4j;
+import net.runelite.api.ChatMessageType;
+import net.runelite.api.Client;
 import net.runelite.api.NPC;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.NpcLootReceived;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.loottracker.LootReceived;
+import net.runelite.http.api.loottracker.LootRecordType;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collection;
 
 @Slf4j
 @Singleton
 public class LootNotifier extends BaseNotifier {
 
+    // These might be used later
+    private static final String BARROWS = "Barrows";
+    private static final String CHAMBERS_OF_XERIC = "Chambers of Xeric";
+    private static final String THEATRE_OF_BLOOD = "Theatre of Blood";
+    private static final String TOMBS_OF_AMASCUT = "Tombs of Amascut";
+
+    @Inject
+    private Client client;
+
+    @Inject
+    private BingoAutoInfoUploadConfig config;
+
     @Inject
     private ItemManager itemManager;
 
     // Handles loot received from killing NPCs
+    @Subscribe
     public void onNpcLootReceived(NpcLootReceived event) {
-        String npcName = event.getNpc().getName();
+        String sourceName = event.getNpc() != null && event.getNpc().getName() != null
+                ? event.getNpc().getName()
+                : "unknown_npc";
 
-        for (ItemStack item : event.getItems())
+        uploadLoot(event.getItems(), sourceName, client.getLocalPlayer().getName());
+    }
+
+    // Handles other loot received forms; CG, Araxxor, Raids, etc.
+    @Subscribe
+    public void onLootReceived(LootReceived event) {
+
+        Collection<ItemStack> items = event.getItems();
+        String eventName = event.getName();
+        String playerName = client.getLocalPlayer().getName();
+
+        if (event.getType() == LootRecordType.EVENT) {
+            // Will need to extra work to determine if hard mode/challenge mode
+            uploadLoot(event.getItems(), eventName, playerName);
+        }
+    }
+
+    public void uploadLoot(Collection<ItemStack> items, String sourceName, String playerName) {
+        for (ItemStack item : items)
         {
             int quantity = item.getQuantity();
             int itemId = item.getId();
             int itemPrice = itemManager.getItemPrice(itemId);
             String itemName = itemManager.getItemComposition(itemId).getName();
 
-
-            LootDTO dto = new LootDTO(itemId, quantity, itemName, itemPrice, npcName);
-
-            // Store and send later
-            log.debug("NPC loot DTO: {}", dto);
+            LootDTO dto = new LootDTO(itemId, quantity, itemName, itemPrice, sourceName, playerName);
+            client.addChatMessage(ChatMessageType.GAMEMESSAGE,
+                    "",
+                    playerName + " received " + itemName + " from " + sourceName + ".",
+                    null);
         }
-    }
-
-    // Handles other loot received forms; CG, BA, Raids?
-    public void onLootReceived(LootReceived event) {
-
     }
 }
