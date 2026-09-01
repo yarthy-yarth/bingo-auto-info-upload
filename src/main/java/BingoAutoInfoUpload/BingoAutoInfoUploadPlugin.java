@@ -1,5 +1,6 @@
 package BingoAutoInfoUpload;
 
+import Notifiers.BossKillTimeNotifier;
 import Notifiers.LootNotifier;
 import Notifiers.XpNotifier;
 import com.google.inject.Provides;
@@ -43,6 +44,9 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 
 	public static OkHttpClient okHttpClient;
 
+	@Inject
+	private BossKillTimeNotifier bossKillTimeNotifier;
+
 	@Override
 	protected void startUp() throws Exception
 	{
@@ -77,22 +81,42 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	@Subscribe
 	public void onNpcLootReceived(NpcLootReceived event)
 	{
-		lootNotifier.onNpcLootReceived(event);
+		if (config.lootLoggerEnabled())
+		{
+			lootNotifier.onNpcLootReceived(event);
+		}
 	}
 
 	@Subscribe
 	public void onFakeXpDrop(FakeXpDrop event)
 	{
-		xpNotifier.onFakeXpReceived(event);
+		if (config.xpNotifierEnabled())
+		{
+			xpNotifier.onFakeXpReceived(event);
+		}
 	}
 
 	@Subscribe
-	public void onStatChanged(StatChanged event)
-	{
-		if (config.xpNotifier()){
+	public void onStatChanged(StatChanged event) {
+		if (config.xpNotifierEnabled())
+		{
 			xpNotifier.onXpReceived(event);
 		}
 	}
 
+	@Subscribe
+	public void onNpcSpawned(NpcSpawned event) {
+		if (config.bossKillTimeEnabled())
+		{
+			bossKillTimeNotifier.onNpcSpawned(event);
+		}
+	}
 
+	@Subscribe
+	public void onChatMessage(ChatMessage event) {
+		if (config.bossKillTimeEnabled())
+		{
+			bossKillTimeNotifier.onBossKilled(event);
+		}
+	}
 }
