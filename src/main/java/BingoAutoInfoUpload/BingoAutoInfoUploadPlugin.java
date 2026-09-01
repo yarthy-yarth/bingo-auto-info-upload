@@ -35,7 +35,7 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.debug("Example started! ");
+		log.debug("Example started!");
 	}
 
 	@Override
