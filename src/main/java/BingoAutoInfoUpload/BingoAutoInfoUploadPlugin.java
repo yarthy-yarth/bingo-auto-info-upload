@@ -41,31 +41,22 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	@Inject
 	private XpNotifier xpNotifier;
 
-	public static OkHttpClient okHttpClient;
-
 	@Override
 	protected void startUp() throws Exception
 	{
-		log.debug("Example started!");
-		okHttpClient = new OkHttpClient.Builder()
-				.followRedirects(true)
-				.followSslRedirects(true)
-				.build();
+
 	}
 
 	@Override
 	protected void shutDown() throws Exception
 	{
-		log.debug("Example stopped!");
+
 	}
 
 	@Subscribe
 	public void onGameStateChanged(GameStateChanged gameStateChanged)
 	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
-		{
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", "Example says " + config.greeting(), null);
-		}
+
 	}
 
 	@Provides

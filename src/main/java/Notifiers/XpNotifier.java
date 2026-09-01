@@ -55,7 +55,7 @@ public class XpNotifier extends BaseNotifier {
             currentXpDictionary.put(skill, xp);
 
             //log to in game chat
-            String message = client.getLocalPlayer().getName() + " Gained: " + skill.toString() + ": " + xpGained;
+            String message = client.getLocalPlayer().getName() + " Gained: " + skill.getName() + ": " + xpGained;
             client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
 
             //send data to webhook
