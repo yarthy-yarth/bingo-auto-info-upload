@@ -1,8 +1,7 @@
 package Notifiers;
 
-import BingoAutoInfoUpload.BingoAutoInfoUploadPlugin;
+import Networking.SheetLogger;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Skill;
 import net.runelite.api.events.FakeXpDrop;
@@ -11,21 +10,18 @@ import net.runelite.client.eventbus.Subscribe;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Enumeration;
 import java.util.HashMap;
-
-import static java.lang.Integer.valueOf;
 
 @Slf4j
 @Singleton
 public class XpNotifier extends BaseNotifier {
 
 
-    @Inject
-    Client client;
-
     ///current xp amounts for the logged in player.
     HashMap<Skill, Integer> currentXpDictionary = new HashMap<Skill, Integer>();
+
+    @Inject
+    SheetLogger sheetLogger;
 
     // Handles Xp Received
     @Subscribe
@@ -51,9 +47,19 @@ public class XpNotifier extends BaseNotifier {
             if (xpGained <0){
                 log.error("can't gain negative xp");
                 return;
+            } else if (xpGained == 0) {
+                log.debug("stats changed not experience");
+                return;
             }
+            //update current xp amount for logged in player
             currentXpDictionary.put(skill, xp);
-            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", client.getLocalPlayer().getName() + " Gained: " + skill.toString() + ": " + xpGained, null);
+
+            //log to in game chat
+            String message = client.getLocalPlayer().getName() + " Gained: " + skill.toString() + ": " + xpGained;
+            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
+
+            //send data to webhook
+            sheetLogger.logXpGained(client.getLocalPlayer().getName(), skill.getName(), xpGained);
         }
 
     }
