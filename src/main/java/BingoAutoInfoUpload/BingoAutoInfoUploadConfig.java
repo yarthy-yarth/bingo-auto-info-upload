@@ -12,8 +12,18 @@ public interface BingoAutoInfoUploadConfig extends Config
 		name = "Welcome Greeting",
 		description = "The message to show to the user when they login"
 	)
+
 	default String greeting()
 	{
 		return "Hello";
+	}
+
+	@ConfigItem(
+			keyName = "xpNotifier",
+			name = "Xp Notifier",
+			description = "Notifies webhook whenever player gains experience."
+	)
+	default boolean xpNotifier(){
+		return true;
 	}
 }
