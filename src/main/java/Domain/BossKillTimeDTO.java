@@ -15,7 +15,7 @@ public class BossKillTimeDTO {
     @Override
     public String toString()
     {
-        return "LootDTO {" +
+        return "BossKillTimeDTO {" +
                 ", timeInTicks='" + timeInTicks + '\'' +
                 ", sourceName='" + sourceName + '\'' +
                 ", playerName='" + playerName + '\'' +
