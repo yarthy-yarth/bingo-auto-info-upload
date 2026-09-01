@@ -1,4 +1,4 @@
-package com.bingo_auto_info_upload;
+package BingoAutoInfoUpload;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;

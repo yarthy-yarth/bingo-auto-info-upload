@@ -1,4 +1,4 @@
-package com.bingo_auto_info_upload;
+package BingoAutoInfoUpload;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;

@@ -14,7 +14,7 @@ repositories {
 }
 
 def runeLiteVersion = 'latest.release'
-def pluginMainClass = 'com.bingo_auto_info_upload.BingoAutoInfoUploadPluginTest'
+def pluginMainClass = 'BingoAutoInfoUpload.BingoAutoInfoUploadPluginTest'
 
 dependencies {
 	compileOnly group: 'net.runelite', name:'client', version: runeLiteVersion
@@ -27,7 +27,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
 }
 
-group = 'com.bingo_auto_info_upload'
+group = 'BingoAutoInfoUpload'
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
