@@ -8,6 +8,7 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.gameval.NpcID;
+import net.runelite.client.util.Text;
 
 import javax.inject.Inject;
 import java.util.Locale;
@@ -18,10 +19,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class BossKillTimeNotifier extends BaseNotifier {
 
-    private static final String FIGHT_DURATION_REGEX = "Fight duration:\\s*(?:(\\d+):)?(\\d+):(\\d{2})\\.(\\d{2})";
-    private static final String COMPLETION_TIME_REGEX = "completion time:\\s*(?:(\\d+):)?(\\d+):(\\d{2})\\.(\\d{2})";
-    private static final String DURATION_REGEX = "Duration:\\s+(\\d+):(\\d{2}):(\\d{2})\\.(\\d{2})";
-    private static final String SUBDUED_REGEX = "Subdued in\\s+(\\d+):(\\d{2})\\.(\\d{2})";
+    private static final String FIGHT_DURATION_REGEX = "Fight duration:\\s*(?:(\\d+):)?(\\d+):(\\d{2})(?:\\.(\\d{2}))?";
+    private static final String COMPLETION_TIME_REGEX = "completion time:\\s*(?:(\\d+):)?(\\d+):(\\d{2})(?:\\.(\\d{2}))?";
+    private static final String DURATION_REGEX = "Duration:\\s+(\\d+):(\\d{2})(?:\\.(\\d{2}))?";
+    private static final String SUBDUED_REGEX = "Subdued in\\s+(\\d+):(\\d{2})(?:\\.(\\d{2}))?";
+    private static final String KILL_TIME_REGEX = "kill time:\\s+(\\d+):(\\d{2})(?:\\.(\\d{2}))?";
 
     // List of boss ids
     private static final Set<Integer> BOSS_IDS = Set.of(
@@ -123,22 +125,12 @@ public class BossKillTimeNotifier extends BaseNotifier {
         }
     }
 
-    public void onNpcDespawned(NpcDespawned event) {
-        if (event.getNpc() == currentBoss) {
-            log.debug("{} has despawned.", currentBoss.getName());
-            currentBoss = null;
-        }
-    }
-
     public void onBossKilled(ChatMessage event) {
-
-
-        // We only want messages from the game
-        if (event.getType() != ChatMessageType.GAMEMESSAGE) {
+        if (event.getType() != ChatMessageType.SPAM) {
             return;
         }
 
-        String message = event.getMessage();
+        String message = Text.removeTags(event.getMessage());
         int timeInTicks = -1;
 
         // Most normal bosses
@@ -155,7 +147,11 @@ public class BossKillTimeNotifier extends BaseNotifier {
         }
         // Tempoross
         else if (message.toLowerCase(Locale.ROOT).contains("Subdued".toLowerCase(Locale.ROOT))) {
-            timeInTicks = parseFightDurationTicks(message, COMPLETION_TIME_REGEX);
+            timeInTicks = parseFightDurationTicks(message, SUBDUED_REGEX);
+        }
+        // Gauntlet
+        else if (message.toLowerCase(Locale.ROOT).contains("kill time".toLowerCase(Locale.ROOT))) {
+            timeInTicks = parseFightDurationTicks(message, KILL_TIME_REGEX);
         }
 
         if (timeInTicks == -1) {
@@ -163,9 +159,17 @@ public class BossKillTimeNotifier extends BaseNotifier {
         }
 
         uploadKillTime(timeInTicks);
+
+        // The time has been tracked so we can reset the boss
+        currentBoss = null;
     }
 
     private void uploadKillTime(int timeInTicks) {
+        if (currentBoss == null) {
+            log.debug("Tried uploading a kill time for a boss without a boss.");
+            return;
+        }
+
         client.addChatMessage(ChatMessageType.GAMEMESSAGE,
                 "",
                 client.getLocalPlayer().getName() + " killed " + currentBoss.getName() + " in " + timeInTicks + " ticks.",
@@ -173,7 +177,7 @@ public class BossKillTimeNotifier extends BaseNotifier {
     }
 
     private int parseFightDurationTicks(String fightDurationChatMessage, String regex) {
-        Pattern pattern = Pattern.compile(regex);
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(fightDurationChatMessage);
 
@@ -188,13 +192,16 @@ public class BossKillTimeNotifier extends BaseNotifier {
 
         int minutes = Integer.parseInt(matcher.group(2));
         int seconds = Integer.parseInt(matcher.group(3));
-        int hundredths = Integer.parseInt(matcher.group(4));
 
-        int milliseconds =
-                hours * 3_600_000 +
-                        minutes * 60_000 +
-                        seconds * 1_000 +
-                        hundredths * 10;
+        int hundredths = matcher.group(4) != null
+                ? Integer.parseInt(matcher.group(4))
+                : 0;
+
+        long milliseconds =
+                hours * 3_600_000L +
+                        minutes * 60_000L +
+                        seconds * 1_000L +
+                        hundredths * 10L;
 
         return Math.round(milliseconds / 600.0f);
     }
