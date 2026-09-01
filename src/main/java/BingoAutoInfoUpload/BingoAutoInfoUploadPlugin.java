@@ -4,6 +4,8 @@ import Notifiers.LootNotifier;
 import Notifiers.XpNotifier;
 import com.google.inject.Provides;
 import javax.inject.Inject;
+
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -19,6 +21,7 @@ import net.runelite.client.events.PlayerLootReceived;
 import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import okhttp3.OkHttpClient;
 
 @Slf4j
 @PluginDescriptor(
@@ -38,10 +41,16 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	@Inject
 	private XpNotifier xpNotifier;
 
+	public static OkHttpClient okHttpClient;
+
 	@Override
 	protected void startUp() throws Exception
 	{
 		log.debug("Example started!");
+		okHttpClient = new OkHttpClient.Builder()
+				.followRedirects(true)
+				.followSslRedirects(true)
+				.build();
 	}
 
 	@Override

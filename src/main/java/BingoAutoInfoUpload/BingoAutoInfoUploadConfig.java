@@ -26,4 +26,15 @@ public interface BingoAutoInfoUploadConfig extends Config
 	default boolean xpNotifier(){
 		return true;
 	}
+
+	@ConfigItem(
+			keyName = "webhook",
+			name = "Web Hook",
+			description = "webhook to send data to"
+	)
+
+	default String webhook()
+	{
+		return "";
+	}
 }
