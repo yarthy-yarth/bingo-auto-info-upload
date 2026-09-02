@@ -1,5 +1,8 @@
 package Notifiers;
 
+import Domain.BossKillTimeDTO;
+import Domain.PlayerMetaInfo;
+import Services.PlayerMetaInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -110,6 +113,9 @@ public class BossKillTimeNotifier extends BaseNotifier {
     @Inject
     private Client client;
 
+    @Inject
+    private PlayerMetaInfoService playerMetaInfoService;
+
     // Tracks what boss player is killing
     private NPC currentBoss;
 
@@ -174,6 +180,9 @@ public class BossKillTimeNotifier extends BaseNotifier {
                 "",
                 client.getLocalPlayer().getName() + " killed " + currentBoss.getName() + " in " + timeInTicks + " ticks.",
                 null);
+
+        PlayerMetaInfo playerMetaInfo = playerMetaInfoService.getPlayerMetaInfo();
+        BossKillTimeDTO bossKillTimeDTO = new BossKillTimeDTO(timeInTicks, currentBoss.getName(), playerMetaInfo);
     }
 
     private int parseFightDurationTicks(String fightDurationChatMessage, String regex) {
