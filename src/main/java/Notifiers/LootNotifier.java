@@ -2,6 +2,8 @@ package Notifiers;
 
 import BingoAutoInfoUpload.BingoAutoInfoUploadConfig;
 import Domain.LootDTO;
+import Domain.PlayerMetaInfo;
+import Services.PlayerMetaInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -36,6 +38,9 @@ public class LootNotifier extends BaseNotifier {
     @Inject
     private ItemManager itemManager;
 
+    @Inject
+    private PlayerMetaInfoService playerMetaInfoService;
+
     // Handles loot received from killing NPCs
     @Subscribe
     public void onNpcLootReceived(NpcLootReceived event) {
@@ -43,7 +48,7 @@ public class LootNotifier extends BaseNotifier {
                 ? event.getNpc().getName()
                 : "unknown_npc";
 
-        uploadLoot(event.getItems(), sourceName, client.getLocalPlayer().getName());
+        uploadLoot(event.getItems(), sourceName);
     }
 
     // Handles other loot received forms; CG, Araxxor, Raids, etc.
@@ -52,15 +57,16 @@ public class LootNotifier extends BaseNotifier {
 
         Collection<ItemStack> items = event.getItems();
         String eventName = event.getName();
-        String playerName = client.getLocalPlayer().getName();
 
         if (event.getType() == LootRecordType.EVENT) {
             // Will need to extra work to determine if hard mode/challenge mode
-            uploadLoot(event.getItems(), eventName, playerName);
+            uploadLoot(event.getItems(), eventName);
         }
     }
 
-    public void uploadLoot(Collection<ItemStack> items, String sourceName, String playerName) {
+    public void uploadLoot(Collection<ItemStack> items, String sourceName) {
+        PlayerMetaInfo playerMetaInfo = playerMetaInfoService.getPlayerMetaInfo();
+
         for (ItemStack item : items)
         {
             int quantity = item.getQuantity();
@@ -68,10 +74,10 @@ public class LootNotifier extends BaseNotifier {
             int itemPrice = itemManager.getItemPrice(itemId);
             String itemName = itemManager.getItemComposition(itemId).getName();
 
-            LootDTO dto = new LootDTO(itemId, quantity, itemName, itemPrice, sourceName, playerName);
+            LootDTO dto = new LootDTO(itemId, quantity, itemName, itemPrice, sourceName, playerMetaInfo);
             client.addChatMessage(ChatMessageType.GAMEMESSAGE,
                     "",
-                    playerName + " received " + itemName + " from " + sourceName + ".",
+                    playerMetaInfo.playerName + " received " + itemName + " from " + sourceName + ".",
                     null);
         }
     }

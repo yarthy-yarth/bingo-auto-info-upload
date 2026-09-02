@@ -1,6 +1,9 @@
 package Notifiers;
 
+import Domain.PlayerMetaInfo;
+import Domain.XpDTO;
 import Networking.SheetLogger;
+import Services.PlayerMetaInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Skill;
@@ -21,6 +24,9 @@ public class XpNotifier extends BaseNotifier {
 
     @Inject
     SheetLogger sheetLogger;
+
+    @Inject
+    PlayerMetaInfoService playerMetaInfoService;
 
     // Handles Xp Received
     @Subscribe
@@ -43,7 +49,7 @@ public class XpNotifier extends BaseNotifier {
         }
         else{
             int xpGained = (xp - currentXpDictionary.get(skill));
-            if (xpGained <0){
+            if (xpGained < 0) {
                 log.error("can't gain negative xp");
                 return;
             } else if (xpGained == 0) {
@@ -53,6 +59,8 @@ public class XpNotifier extends BaseNotifier {
             //update current xp amount for logged in player
             currentXpDictionary.put(skill, xp);
 
+            uploadXpGained(skill.name(), xpGained);
+
             //log to in game chat
             String message = client.getLocalPlayer().getName() + " Gained: " + skill.getName() + ": " + xpGained;
             //client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
@@ -60,6 +68,10 @@ public class XpNotifier extends BaseNotifier {
             //send data to webhook
             sheetLogger.logXpGained();
         }
+    }
 
+    public void uploadXpGained(String skillName, int xpGained) {
+        PlayerMetaInfo playerMetaInfo = playerMetaInfoService.getPlayerMetaInfo();
+        XpDTO xpDTO = new XpDTO(skillName, xpGained, playerMetaInfo);
     }
 }
