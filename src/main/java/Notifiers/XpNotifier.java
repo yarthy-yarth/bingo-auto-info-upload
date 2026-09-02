@@ -1,7 +1,7 @@
 package Notifiers;
 
 import Domain.PlayerMetaInfo;
-import Domain.XpDTO;
+import Domain.XpChangedDTO;
 import Networking.SheetLogger;
 import Services.PlayerMetaInfoService;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +73,6 @@ public class XpNotifier extends BaseNotifier {
 
     public void uploadXpGained(String skillName, int xpGained) {
         PlayerMetaInfo playerMetaInfo = playerMetaInfoService.getPlayerMetaInfo();
-        XpDTO xpDTO = new XpDTO(skillName, xpGained, playerMetaInfo);
+        XpChangedDTO xpDTO = new XpChangedDTO(skillName, xpGained, playerMetaInfo);
     }
 }

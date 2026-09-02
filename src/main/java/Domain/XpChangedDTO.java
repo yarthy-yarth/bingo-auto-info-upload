@@ -1,10 +1,10 @@
 package Domain;
 
-public class XpDTO extends BaseDTO {
+public class XpChangedDTO extends BaseDTO {
     public String skillName;
     public int skillXpSinceLastUpdate;
 
-    public XpDTO(String skillName, int skillXpSinceLastUpdate, PlayerMetaInfo playerMetaInfo)
+    public XpChangedDTO(String skillName, int skillXpSinceLastUpdate, PlayerMetaInfo playerMetaInfo)
     {
         super(playerMetaInfo);
 
