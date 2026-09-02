@@ -1,24 +1,14 @@
 package Domain;
 
-public class BossKillTimeDTO {
+public class BossKillTimeDTO extends BaseDTO {
     public int timeInTicks;
     public String sourceName;
-    public String playerName;
 
-    public BossKillTimeDTO(int timeInTicks, String sourceName, String playerName)
+    public BossKillTimeDTO(int timeInTicks, String sourceName, PlayerMetaInfo playerMetaInfo)
     {
+        super(playerMetaInfo);
+
         this.timeInTicks = timeInTicks;
         this.sourceName = sourceName;
-        this.playerName = playerName;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "BossKillTimeDTO {" +
-                ", timeInTicks='" + timeInTicks + '\'' +
-                ", sourceName='" + sourceName + '\'' +
-                ", playerName='" + playerName + '\'' +
-                '}';
     }
 }
