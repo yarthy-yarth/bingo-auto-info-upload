@@ -4,6 +4,7 @@ import Domain.PlayerMetaInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.plugins.loottracker.LootTrackerPlugin;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -16,6 +17,9 @@ public class PlayerMetaInfoService {
 
     @Inject
     private ItemManager itemManager;
+
+    @Inject
+    LootTrackerPlugin lootTrackerPlugin;
 
     public PlayerMetaInfoService() { }
 

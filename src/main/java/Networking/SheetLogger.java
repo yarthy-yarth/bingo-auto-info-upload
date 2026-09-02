@@ -1,10 +1,12 @@
 package Networking;
 import BingoAutoInfoUpload.BingoAutoInfoUploadConfig;
-import com.formdev.flatlaf.json.Json;
+import Domain.*;
 import com.google.gson.JsonObject;
 import okhttp3.*;
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 import net.runelite.api.Client;
 import org.slf4j.Logger;
@@ -34,8 +36,21 @@ public class SheetLogger {
             .build();
     private static final Gson gson = new Gson();
 
-    public void onTick(){
+    private static final ArrayList<BaseDTO> eventQueue = new ArrayList<BaseDTO>();
+    private static int ticksSinceLastMessage = 0;
 
+
+    //called every game tick
+    public void onTick(){
+        if (ticksSinceLastMessage >= config.ticksPerMessage()){
+            ticksSinceLastMessage = 0;
+            JsonObject message = buildMessage();
+            if (message != null){
+                sendMessage(message);
+            }
+        }else{
+            ticksSinceLastMessage++;
+        }
     }
 
     //Notifiers send information to SheetLogger to be batched and sent to google sheet
@@ -65,18 +80,50 @@ public class SheetLogger {
 
     ///Builds message using notifications in queue
     public JsonObject buildMessage(){
+        if (eventQueue.isEmpty()){
+            return null;
+        }
         JsonObject message = new JsonObject();
-        /*payload.addProperty("player", player);
-        payload.addProperty("event", skill);
-        payload.addProperty("value", xpGained);*/
+        int count = 0;
+
+        for(BaseDTO entry : eventQueue){
+
+            if (entry instanceof XpDTO){
+                XpDTO xpEntry = (XpDTO)entry;
+                JsonObject xpMessage = new JsonObject();
+                xpMessage.addProperty("time", xpEntry.when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                xpMessage.addProperty("player", xpEntry.playerMetaData.playerName);
+                xpMessage.addProperty("skill", xpEntry.skillName);
+                xpMessage.addProperty("xpGained", xpEntry.skillXpSinceLastUpdate);
+                message.add(count+"_XPGained", xpMessage);
+            }
+            else if (entry instanceof LootDTO) {
+                LootDTO lootEntry = (LootDTO)entry;
+                JsonObject lootMessage = new JsonObject();
+                lootMessage.addProperty("time", lootEntry.when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                lootMessage.addProperty("player", lootEntry.playerMetaData.playerName);
+                lootMessage.addProperty("itemName", lootEntry.itemName);
+                lootMessage.addProperty("itemPrice", lootEntry.itemPrice);
+                lootMessage.addProperty("itemQuantity", lootEntry.quantity);
+                lootMessage.addProperty("ItemSource", lootEntry.sourceName);
+                message.add(count+"_Loot", lootMessage);
+            }
+            else if (entry instanceof BossKillTimeDTO) {
+                //fill in later
+            }
+
+            count++;
+        }
+        //empty event queue for next batch
+        eventQueue.clear();
 
         return message;
     }
 
     //enqueue xp gain event
-    public void logXpGained() {
+    public void logEvent(BaseDTO event) {
 
-
+        eventQueue.add(event);
 
     }
 }

@@ -45,4 +45,15 @@ public interface BingoAutoInfoUploadConfig extends Config
 	{
 		return "";
 	}
+
+	@ConfigItem(
+			keyName = "ticksPerMessage",
+			name = "Message Frequency",
+			description = "The number of ticks between each message batch"
+	)
+
+	default int ticksPerMessage()
+	{
+		return 0;
+	}
 }

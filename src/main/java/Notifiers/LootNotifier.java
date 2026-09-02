@@ -3,6 +3,7 @@ package Notifiers;
 import BingoAutoInfoUpload.BingoAutoInfoUploadConfig;
 import Domain.LootDTO;
 import Domain.PlayerMetaInfo;
+import Networking.SheetLogger;
 import Services.PlayerMetaInfoService;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
@@ -39,6 +40,9 @@ public class LootNotifier extends BaseNotifier {
     private ItemManager itemManager;
 
     @Inject
+    SheetLogger sheetLogger;
+
+    @Inject
     private PlayerMetaInfoService playerMetaInfoService;
 
     // Handles loot received from killing NPCs
@@ -72,9 +76,11 @@ public class LootNotifier extends BaseNotifier {
             int quantity = item.getQuantity();
             int itemId = item.getId();
             int itemPrice = itemManager.getItemPrice(itemId);
+            //int totalItemPrice = itemPrice * quantity;
             String itemName = itemManager.getItemComposition(itemId).getName();
 
             LootDTO dto = new LootDTO(itemId, quantity, itemName, itemPrice, sourceName, playerMetaInfo);
+            sheetLogger.logEvent(dto);
             client.addChatMessage(ChatMessageType.GAMEMESSAGE,
                     "",
                     playerMetaInfo.playerName + " received " + itemName + " from " + sourceName + ".",

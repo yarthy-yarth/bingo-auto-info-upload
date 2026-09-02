@@ -64,14 +64,12 @@ public class XpNotifier extends BaseNotifier {
             //log to in game chat
             String message = client.getLocalPlayer().getName() + " Gained: " + skill.getName() + ": " + xpGained;
             //client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
-
-            //send data to webhook
-            sheetLogger.logXpGained();
         }
     }
 
     public void uploadXpGained(String skillName, int xpGained) {
         PlayerMetaInfo playerMetaInfo = playerMetaInfoService.getPlayerMetaInfo();
         XpDTO xpDTO = new XpDTO(skillName, xpGained, playerMetaInfo);
+        sheetLogger.logEvent(xpDTO);
     }
 }
