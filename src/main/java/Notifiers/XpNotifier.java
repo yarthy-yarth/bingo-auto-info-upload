@@ -16,7 +16,6 @@ import java.util.HashMap;
 @Singleton
 public class XpNotifier extends BaseNotifier {
 
-
     ///current xp amounts for the logged in player.
     HashMap<Skill, Integer> currentXpDictionary = new HashMap<Skill, Integer>();
 
@@ -40,7 +39,7 @@ public class XpNotifier extends BaseNotifier {
 
         if (!currentXpDictionary.containsKey(skill)){
             currentXpDictionary.put(skill, xp);
-            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", client.getLocalPlayer().getName() + " Initial Xp: " + skill.toString() + ": " + xp, null);
+            //client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", client.getLocalPlayer().getName() + " Initial Xp: " + skill.toString() + ": " + xp, null);
         }
         else{
             int xpGained = (xp - currentXpDictionary.get(skill));
@@ -56,10 +55,10 @@ public class XpNotifier extends BaseNotifier {
 
             //log to in game chat
             String message = client.getLocalPlayer().getName() + " Gained: " + skill.getName() + ": " + xpGained;
-            client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
+            //client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", message, null);
 
             //send data to webhook
-            sheetLogger.logXpGained(client.getLocalPlayer().getName(), skill.getName(), xpGained);
+            sheetLogger.logXpGained();
         }
 
     }

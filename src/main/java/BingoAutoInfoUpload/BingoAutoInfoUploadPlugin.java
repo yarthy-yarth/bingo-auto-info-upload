@@ -1,5 +1,6 @@
 package BingoAutoInfoUpload;
 
+import Networking.SheetLogger;
 import Notifiers.BossKillTimeNotifier;
 import Notifiers.LootNotifier;
 import Notifiers.XpNotifier;
@@ -12,9 +13,7 @@ import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.NPC;
-import net.runelite.api.events.FakeXpDrop;
-import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.StatChanged;
+import net.runelite.api.events.*;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.NpcLootReceived;
@@ -45,6 +44,9 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	@Inject
 	private BossKillTimeNotifier bossKillTimeNotifier;
 
+	@Inject
+	private SheetLogger sheetLogger;
+
 	@Override
 	protected void startUp() throws Exception
 	{
@@ -55,6 +57,11 @@ public class BingoAutoInfoUploadPlugin extends Plugin
 	protected void shutDown() throws Exception
 	{
 
+	}
+
+	@Subscribe
+	public void onGameTick(GameTick event){
+		sheetLogger.onTick();
 	}
 
 	@Subscribe

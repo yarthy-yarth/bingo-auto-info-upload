@@ -1,5 +1,6 @@
 package Networking;
 import BingoAutoInfoUpload.BingoAutoInfoUploadConfig;
+import com.formdev.flatlaf.json.Json;
 import com.google.gson.JsonObject;
 import okhttp3.*;
 import com.google.gson.Gson;
@@ -18,7 +19,6 @@ public class SheetLogger {
 
     private final BingoAutoInfoUploadConfig config;
 
-
     private final Client client;
 
     @Inject
@@ -27,27 +27,26 @@ public class SheetLogger {
         this.client = client;
     }
 
-    private static String WEBHOOK_URL;
     private static final Logger log = LoggerFactory.getLogger(SheetLogger.class);
     private static final OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .followRedirects(true)
             .followSslRedirects(true)
-            .build();;
+            .build();
     private static final Gson gson = new Gson();
 
+    public void onTick(){
 
-    public void logXpGained(String player, String skill, int xpGained) {
-        WEBHOOK_URL = config.webhook();
-        JsonObject payload = new JsonObject();
-        payload.addProperty("player", player);
-        payload.addProperty("event", skill);
-        payload.addProperty("value", xpGained);
+    }
 
+    //Notifiers send information to SheetLogger to be batched and sent to google sheet
+    //
+
+    public void sendMessage(JsonObject message){
         RequestBody body = RequestBody.create(
-                MediaType.parse("application/json"), gson.toJson(payload));
+                MediaType.parse("application/json"), gson.toJson(message));
 
         Request request = new Request.Builder()
-                .url(WEBHOOK_URL)
+                .url(config.webhook())
                 .post(body)
                 .build();
 
@@ -62,5 +61,22 @@ public class SheetLogger {
                 log.debug("sent to sheet");
             }
         });
+    }
+
+    ///Builds message using notifications in queue
+    public JsonObject buildMessage(){
+        JsonObject message = new JsonObject();
+        /*payload.addProperty("player", player);
+        payload.addProperty("event", skill);
+        payload.addProperty("value", xpGained);*/
+
+        return message;
+    }
+
+    //enqueue xp gain event
+    public void logXpGained() {
+
+
+
     }
 }
