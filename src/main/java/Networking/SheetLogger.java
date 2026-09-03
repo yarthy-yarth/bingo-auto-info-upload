@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import okhttp3.*;
 import com.google.gson.Gson;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Map;
 
 import net.runelite.api.Client;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class SheetLogger {
             .build();
     private static final Gson gson = new Gson();
 
-    private static final ArrayList<BaseDTO> eventQueue = new ArrayList<BaseDTO>();
+    private static final ArrayList<BaseDTO> eventQueue = new ArrayList<>();
     private static int ticksSinceLastMessage = 0;
 
 
@@ -87,30 +87,8 @@ public class SheetLogger {
         int count = 0;
 
         for(BaseDTO entry : eventQueue){
-
-            if (entry instanceof XpDTO){
-                XpDTO xpEntry = (XpDTO)entry;
-                JsonObject xpMessage = new JsonObject();
-                xpMessage.addProperty("time", xpEntry.when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                xpMessage.addProperty("player", xpEntry.playerMetaData.playerName);
-                xpMessage.addProperty("skill", xpEntry.skillName);
-                xpMessage.addProperty("xpGained", xpEntry.skillXpSinceLastUpdate);
-                message.add(count+"_XPGained", xpMessage);
-            }
-            else if (entry instanceof LootDTO) {
-                LootDTO lootEntry = (LootDTO)entry;
-                JsonObject lootMessage = new JsonObject();
-                lootMessage.addProperty("time", lootEntry.when.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-                lootMessage.addProperty("player", lootEntry.playerMetaData.playerName);
-                lootMessage.addProperty("itemName", lootEntry.itemName);
-                lootMessage.addProperty("itemPrice", lootEntry.itemPrice);
-                lootMessage.addProperty("itemQuantity", lootEntry.quantity);
-                lootMessage.addProperty("ItemSource", lootEntry.sourceName);
-                message.add(count+"_Loot", lootMessage);
-            }
-            else if (entry instanceof BossKillTimeDTO) {
-                //fill in later
-            }
+            Map.Entry<String, JsonObject> entryJsonWithKey = entry.toJsonWithKey();
+            message.add(count+"_"+entryJsonWithKey.getKey(), entryJsonWithKey.getValue());
 
             count++;
         }
